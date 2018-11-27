@@ -2,6 +2,7 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:five="http://namespaces.zope.org/five"
     xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     i18n_domain="emc.sync">
 
@@ -15,5 +16,10 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
   <!-- -*- extra stuff goes here -*- -->
-  
+   <browser:page
+      for="*"
+      name="receive_userdata"
+      class=".receive.Recieve"
+      permission="zope2.View"
+      /> 
 </configure>
