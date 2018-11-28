@@ -54,25 +54,20 @@ class Recieve(BrowserView):
         return template     
     
     def  __call__(self):
-        from zope import event
-        import pdb
-        pdb.set_trace()
-#         from emc.sync.events import ReceiveWechatEvent
-
         ev = self.request.environ
-
         if ev['REQUEST_METHOD'] =="GET":
             # valid request from weixin
-
-            return self.abort(403)           
-            
+            return self.abort(403)                      
         else:
-
             body =  self.request.get('BODY')
             users = self.parserxml(body.strip())
+            for i  in users:
+                user = self.fetch_userinfo(i)
+                tmp = self.create_user(user)
+                
 # 分析原始xml，返回名类型message实例            
 #             message = parse_user_msg(body)
-            logging.info("Receive message")                    
+            logging.info("Receive users")                    
 #             event.notify(ReceiveWechatEvent(message))
             return ""
 
@@ -87,6 +82,9 @@ class Recieve(BrowserView):
         user['username'] = element.findtext("./identityNo")
         user['fullname'] = element.findtext("./userName")
         user['safe_level'] = element.findtext("./psnSecretLevelCode")
+        user['available'] = element.findtext("./endFlag").strip()
+        import pdb
+        pdb.set_trace()
         return user
         
     def parserxml(self,xml):
@@ -99,8 +97,11 @@ class Recieve(BrowserView):
 #         f = ET.parse(fobj,parser=xmlp)
         mdtype = root.findtext("./mdtype")
         if mdtype != "User":return []
-        users = root.findall("./data/user")
-        return users
+#         users = root.findall("./data/User")
+#         import pdb
+#         pdb.set_trace()
+        ug = root.iterfind("./data/User")
+        return ug
 
     def exist(self,id):
         "check user iff is exist"
@@ -111,6 +112,8 @@ class Recieve(BrowserView):
         "create a user that its properties come from udic parameters" 
         regtool = getToolByName(site.context, 'portal_registration')
         username = udic['username']
+        aval = udic['available']
+        if not self.exist(username) and aval=="0":return 0
         passwd = "[%s}" % username
         properties = {
                       'safe_level': udic['safe_level'],
@@ -121,6 +124,9 @@ class Recieve(BrowserView):
         try:
         # addMember() returns MemberData object
             member = regtool.addMember(username, passwd, properties=properties)
+            import pdb
+            pdb.set_trace()
+            if member != None:return 1
         except ValueError, e:
         # Give user visual feedback what went wrong
 #             IStatusMessage(request).addStatusMessage(_(u"Could not create the user:") + unicode(e), "error")
