@@ -45,7 +45,7 @@ class TestView(unittest.TestCase):
 <endFlag>0</endFlag>    是否离职代码  0为否 1为离职
 <id>0001A110000000000T4H</id>    系统流水号
 <fcFlag>0</fcFlag>   封存标志
-<identityNo>110101197909181528</identityNo> 身份证号
+<identityNo>110101197909181529</identityNo> 身份证号
 <name>顾蕾</name>   姓名
 <gender>2</gender> 性别代码    1为男 2为女
 <userName>顾蕾</userName>   姓名
@@ -83,7 +83,7 @@ class TestView(unittest.TestCase):
 <User>
 <xh>9999999</xh>
 <code>0001A110000000000T4H</code>
-<endFlag>0</endFlag>
+<endFlag>1</endFlag>
 <id>0001A110000000000T4H</id>
 <fcFlag>0</fcFlag>
 <identityNo>%(idNo)s</identityNo>
@@ -102,9 +102,9 @@ class TestView(unittest.TestCase):
                     name= u"顾蕾".encode("utf-8"),
 #                    level = "ooo")                 
                     level = u"重要".encode("utf-8"))
-        xml = _make_xml('110101197909181528')
+        xml = _make_xml('110101197909181543')
         headers = {'Content-Type': 'application/xml'}
 
-        requests.post('http://127.0.0.1:8080/Plone7/@@receive_userdata', data=xml, headers=headers)        
+        requests.post('http://127.0.0.1:8080/Plone9/@@receive_userdata',auth=('admin2', 'qzm2tEZ5'),data=xml, headers=headers)        
 
  

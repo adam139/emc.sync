@@ -1,36 +1,15 @@
 #-*- coding: UTF-8 -*-
-from five import grok
-import json
-from plone.app.layout.navigation.interfaces import INavigationRoot
 from Products.CMFCore.utils import getToolByName
-from zope.component import getMultiAdapter
-
-from zope import event
-# from emc.sync.interfaces import ISendWechatEvent
-# from emc.sync.events import SendWechatEvent
-from Products.statusmessages.interfaces import IStatusMessage
-import six
-import os
-import inspect
-import hashlib
-import logging
-# from emc.sync.parser import parse_user_msg
-# from emc.sync.utilities import to_binary, to_text                     
-    
+import logging                      
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 import xml.etree.ElementTree as ET
-from cStringIO import StringIO
+
 
 class Recieve(BrowserView):
     """receive weixin.
     """
-    
-    grok.context(INavigationRoot)
-    grok.name('receive_userdata')
-    grok.require('zope2.View')
 
-        
     def abort(self,status):
         template ="""            
     <!DOCTYPE html>
@@ -64,17 +43,8 @@ class Recieve(BrowserView):
             for i  in users:
                 user = self.fetch_userinfo(i)
                 tmp = self.create_user(user)
-                
-# 分析原始xml，返回名类型message实例            
-#             message = parse_user_msg(body)
-            logging.info("Receive users")                    
-#             event.notify(ReceiveWechatEvent(message))
+                logging.info("Receive users")                   
             return ""
-
-    def str2file(self,text):
-        "transfer text to ram file object"
-
-        return StringIO(text)
     
     def fetch_userinfo(self,element):
         "parameter element is a 'xml.etree.ElementTree.Element' instance"
@@ -83,8 +53,6 @@ class Recieve(BrowserView):
         user['fullname'] = element.findtext("./userName")
         user['safe_level'] = element.findtext("./psnSecretLevelCode")
         user['available'] = element.findtext("./endFlag").strip()
-        import pdb
-        pdb.set_trace()
         return user
         
     def parserxml(self,xml):
@@ -97,9 +65,6 @@ class Recieve(BrowserView):
 #         f = ET.parse(fobj,parser=xmlp)
         mdtype = root.findtext("./mdtype")
         if mdtype != "User":return []
-#         users = root.findall("./data/User")
-#         import pdb
-#         pdb.set_trace()
         ug = root.iterfind("./data/User")
         return ug
 
@@ -110,25 +75,23 @@ class Recieve(BrowserView):
     
     def create_user(self,udic):
         "create a user that its properties come from udic parameters" 
-        regtool = getToolByName(site.context, 'portal_registration')
+        regtool = getToolByName(self.context, 'portal_registration')
         username = udic['username']
         aval = udic['available']
-        if not self.exist(username) and aval=="0":return 0
+
+        if aval=="0":return 0
+        elif not self.exist(username) :return 0
         passwd = "[%s}" % username
-        properties = {
+        properties = {'username':username,
                       'safe_level': udic['safe_level'],
+                      'email':'demo@plone.org',
         # Full name must always be utf-8 encoded
-                      'fullname': udic['fullname'].encode("utf-8"),
-                      'email': ''
-                      }
+                      'fullname': udic['fullname'].encode("utf-8")
+                      }             
         try:
         # addMember() returns MemberData object
-            member = regtool.addMember(username, passwd, properties=properties)
-            import pdb
-            pdb.set_trace()
+            member = regtool.addMember(username, passwd, properties=properties)     
             if member != None:return 1
         except ValueError, e:
-        # Give user visual feedback what went wrong
-#             IStatusMessage(request).addStatusMessage(_(u"Could not create the user:") + unicode(e), "error")
-            return None        
-               
+            logging.info("Can not create the user:" + unicode(e))           
+        return None                  
