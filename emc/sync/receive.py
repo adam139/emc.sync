@@ -1,10 +1,11 @@
 #-*- coding: UTF-8 -*-
 from Products.CMFCore.utils import getToolByName
+from zope import event
 import logging                      
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 import xml.etree.ElementTree as ET
-
+from emc.memberArea.events import BackMemberCreatedEvent
 
 class Recieve(BrowserView):
     """receive weixin.
@@ -68,10 +69,15 @@ class Recieve(BrowserView):
         ug = root.iterfind("./data/User")
         return ug
 
+    def getMermberByid(self,id):
+        ""
+        mt = getToolByName(self.context, 'portal_membership')
+        return mt.getMemberById(id)        
+        
     def exist(self,id):
         "check user iff is exist"
-        mt = getToolByName(self.context, 'portal_membership')
-        return mt.getMemberById(id) is None
+
+        return self.getMermberByid(id) is None
     
     def create_user(self,udic):
         "create a user that its properties come from udic parameters" 
@@ -91,7 +97,9 @@ class Recieve(BrowserView):
         try:
         # addMember() returns MemberData object
             member = regtool.addMember(username, passwd, properties=properties)     
-            if member != None:return 1
+            if member != None:
+                event.notify(BackMemberCreatedEvent(member))
+                return 1
         except ValueError, e:
             logging.info("Can not create the user:" + unicode(e))           
         return None                  

@@ -24,12 +24,12 @@ def getFile(filename):
 
 class TestView(unittest.TestCase):
     
-    layer = FUNCTIONAL_TESTING
-
-    def setUp(self):
-        portal = self.layer['portal']
-        setRoles(portal, TEST_USER_ID, ('Manager',))                              
-        self.portal = portal
+#     layer = FUNCTIONAL_TESTING
+# 
+#     def setUp(self):
+#         portal = self.layer['portal']
+#         setRoles(portal, TEST_USER_ID, ('Manager',))                              
+#         self.portal = portal
                          
         
     def test_post_xml(self):
@@ -102,9 +102,9 @@ class TestView(unittest.TestCase):
                     name= u"顾蕾".encode("utf-8"),
 #                    level = "ooo")                 
                     level = u"重要".encode("utf-8"))
-        xml = _make_xml('110101197909181543')
+        xml = _make_xml('110101197909181550')
         headers = {'Content-Type': 'application/xml'}
 
-        requests.post('http://127.0.0.1:8080/Plone9/@@receive_userdata',auth=('admin2', 'qzm2tEZ5'),data=xml, headers=headers)        
+        requests.post('http://127.0.0.1:8080/Plone8/@@receive_userdata',auth=('admin2', 'qzm2tEZ5'),data=xml, headers=headers)        
 
  
