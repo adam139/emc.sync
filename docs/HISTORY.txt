@@ -1,6 +1,11 @@
 Changelog
 =========
 
+dev1.2 (current developement)
+-------------------
+- add dev1.2 as currnet developement version(2019-08-07)
+
+
 1.0dev (unreleased)
 -------------------
 
