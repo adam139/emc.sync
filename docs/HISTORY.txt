@@ -1,9 +1,12 @@
 Changelog
 =========
 
-dev1.2 (current developement)
+1.0 - 2020-09-22
 -------------------
-- add dev1.2 as currnet developement version(2019-08-07)
+
+* release 1.0
+
+* add dev1.2 as currnet developement version(2019-08-07)
 
 
 1.0dev (unreleased)
